@@ -245,12 +245,12 @@
 
             function createCurrentPositionLayer(map) {
                 var template = {
-                    externalGraphic: "${stationIcon}",
+                    externalGraphic: "${icon}",
                     graphicHeight: 20,
                     graphicWidth: 20
                 };
                 var context = {
-                    stationIcon: function(feature) {
+                    icon: function(feature) {
                         var zoom = map.getZoom();
                         console.log(zoom);
                         return 'bower_components/openlayers/theme/default/img/overview_replacement.gif';
@@ -264,28 +264,47 @@
             }
 
             function createStationsLayer(map) {
-                var stationsLayer = new OpenLayers.Layer.Vector("stations");
+                var template = {
+                    externalGraphic: "${stationIcon}",
+                    graphicHeight: 21,
+                    graphicWidth: 16,
+                    graphicOpacity: 1,
+                    graphicYOffset: "${graphicYOffset}"
+                };
+                var context = {
+                    stationIcon: function(feature) {
+                        return 'bower_components/openlayers/img/marker.png';
+                    },
+                    graphicYOffset: function(feature) {
+                        return -template.graphicHeight;
+                    }
+                };
+                var currentPositionStyle = new OpenLayers.Style(template, { context: context });
+
+                var stationsLayer = new OpenLayers.Layer.Vector("stations", {
+                    styleMap: new OpenLayers.StyleMap({ 'default': currentPositionStyle })
+                });
 
                 var stationsControl = new OpenLayers.Control.SelectFeature(stationsLayer, {
-                        onSelect: function(feature) {
-                            var station = feature.data.station;
+                    onSelect: function(feature) {
+                        var station = feature.data.station;
 
-                            var popup = new OpenLayers.Popup(
-                                'svv-popup-' + station.id,
-                                feature.geometry.getBounds().getCenterLonLat(),
-                                new OpenLayers.Size(150, 50),
-                                "<h3>" + station.stationName + "</h3>",
-                                false,
-                                null);
+                        var popup = new OpenLayers.Popup(
+                            'svv-popup-' + station.id,
+                            feature.geometry.getBounds().getCenterLonLat(),
+                            new OpenLayers.Size(150, 50),
+                            "<h3>" + station.stationName + "</h3>",
+                            false,
+                            null);
 
-                            feature.popup = popup;
-                            map.addPopup(popup);
-                        },
-                        onUnselect: function(feature) {
-                            map.removePopup(feature.popup);
-                            feature.popup.destroy();
-                            feature.popup = null;
-                        }
+                        feature.popup = popup;
+                        map.addPopup(popup);
+                    },
+                    onUnselect: function(feature) {
+                        map.removePopup(feature.popup);
+                        feature.popup.destroy();
+                        feature.popup = null;
+                    }
                 });
                 map.addControl(stationsControl);
                 stationsControl.activate();
@@ -359,8 +378,7 @@
                                 stationName: station.stationName,
                                 install: true
                             }
-                        },
-                        { externalGraphic: 'bower_components/openlayers/img/marker.png', graphicHeight: 21, graphicWidth: 16 });
+                        });
                 }
 
                 function render(el) {
