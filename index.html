@@ -265,30 +265,50 @@
 
             function createStationsLayer(map) {
                 var template = {
+                    // regular station design
                     externalGraphic: "${stationIcon}",
                     graphicHeight: 21,
                     graphicWidth: 16,
                     graphicOpacity: 1,
-                    graphicYOffset: "${graphicYOffset}"
+                    graphicYOffset: "${graphicYOffset}",
+
+                    // cluster design
+                    label: "${label}",
+                    fill: true,
+                    fillColor: "#ee9900",
+                    fillOpacity: 0.6,
+                    fontColor: "#fff",
+                    pointRadius: 15,
+                    stroke: false
                 };
                 var context = {
                     stationIcon: function(feature) {
+                        if (feature.cluster) return "";
+
                         var station = feature.data.station;
                         var base = 'bower_components/openlayers/img/marker';
                         return base + (station.install ? '' : '-blue') + ".png";
                     },
                     graphicYOffset: function(feature) {
                         return -template.graphicHeight;
+                    },
+                    label: function(feature) {
+                        if (feature.cluster) return feature.cluster.length;
+                        return "";
                     }
                 };
                 var currentPositionStyle = new OpenLayers.Style(template, { context: context });
 
+                var strategy = new OpenLayers.Strategy.Cluster({ distance: 15, threshold: 2 });
+
                 var stationsLayer = new OpenLayers.Layer.Vector("stations", {
-                    styleMap: new OpenLayers.StyleMap({ 'default': currentPositionStyle })
+                    styleMap: new OpenLayers.StyleMap({ 'default': currentPositionStyle }),
+                    strategies: [strategy]
                 });
 
                 var stationsControl = new OpenLayers.Control.SelectFeature(stationsLayer, {
                     onSelect: function(feature) {
+                        if (feature.cluster) return;
                         var station = feature.data.station;
 
                         var popup = new OpenLayers.Popup(
@@ -303,6 +323,7 @@
                         map.addPopup(popup);
                     },
                     onUnselect: function(feature) {
+                        if (feature.cluster) return;
                         map.removePopup(feature.popup);
                         feature.popup.destroy();
                         feature.popup = null;
@@ -404,7 +425,8 @@
 
                 var molde = { id: 1, stationName: "Molde", lat: 6981207, lon: 100655, install: true };
                 var oslo = { id: 2, stationName: "Oslo", lat: 6649344, lon: 262804, install: false };
-                map.showStations([molde, oslo]);
+                var oslo2 = { id: 3, stationName: "Løkka", lat: 6651304, lon: 262817, install: false };
+                map.showStations([molde, oslo, oslo2]);
 
                 map.setCurrentPosition(10.4009966, 63.4112076);
 
