@@ -238,9 +238,7 @@
                     }
                 });
 
-                return {
-                    map: map
-                }
+                return map;
             };
 
             function createCurrentPositionLayer(map) {
@@ -351,8 +349,7 @@
 
 
             function datainnMap() {
-                var base = svvMap();
-                var map = base.map;
+                var map = svvMap();
 
                 map.addLayer(createCurrentPositionLayer(map));
                 map.addLayer(createStationsLayer(map));
