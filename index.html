@@ -34,6 +34,7 @@
         <!-- <div style="width:1000px; height:500px;" id="map"></div> -->
 
         <script src="proj4js-compressed.js"></script>
+        <script src="bower_components/underscore/underscore.js"></script>
         <script src="bower_components/openlayers/lib/OpenLayers.js"></script>
         <script>
             Proj4js.defs["EPSG:25833"] = "+proj=utm +zone=33 +ellps=GRS80 +units=m +no_defs";
@@ -261,6 +262,13 @@
                 });
             }
 
+            var stationIconSize = _.memoize(function(zoomLevel) {
+                if (zoomLevel > 10) {
+                    return { width: 32, height: 42 };
+                }
+                return { width: 16, height: 21 };
+            });
+
             function createStationsLayer(map) {
                 var template = {
                     // regular station design
@@ -288,21 +296,11 @@
                     },
                     graphicWidth: function(feature) {
                         if (feature.cluster) return;
-
-                        if (map.getZoom() > 10) {
-                            return 32;
-                        } else {
-                            return 16;
-                        }
+                        return stationIconSize(map.getZoom()).width;
                     },
                     graphicHeight: function(feature) {
                         if (feature.cluster) return;
-
-                        if (map.getZoom() > 10) {
-                            return 42;
-                        } else {
-                            return 21;
-                        }
+                        return stationIconSize(map.getZoom()).height;
                     },
                     label: function(feature) {
                         if (feature.cluster) return feature.cluster.length;
