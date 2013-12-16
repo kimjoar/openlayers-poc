@@ -243,27 +243,28 @@
                 }
             };
 
-            function datainnMap() {
-                var base = svvMap();
-                var map = base.map;
-
-                var context = {
-                    getStationIconForZoom: function(feature) {
-                        return 'bower_components/openlayers/theme/default/img/overview_replacement.gif';
-                    }
-                };
+            function createCurrentPositionLayer(map) {
                 var template = {
-                    externalGraphic: "${getStationIconForZoom}",
+                    externalGraphic: "${stationIcon}",
                     graphicHeight: 20,
                     graphicWidth: 20
                 };
-                var style = new OpenLayers.Style(template, { context: context });
-                var styleMap = new OpenLayers.StyleMap({ 'default': style });
+                var context = {
+                    stationIcon: function(feature) {
+                        var zoom = map.getZoom();
+                        console.log(zoom);
+                        return 'bower_components/openlayers/theme/default/img/overview_replacement.gif';
+                    }
+                };
+                var currentPositionStyle = new OpenLayers.Style(template, { context: context });
 
-                map.addLayer(new OpenLayers.Layer.Vector("currentPosition", { styleMap: styleMap }));
+                return new OpenLayers.Layer.Vector("currentPosition", {
+                    styleMap: new OpenLayers.StyleMap({ 'default': currentPositionStyle })
+                });
+            }
 
+            function createStationsLayer(map) {
                 var stationsLayer = new OpenLayers.Layer.Vector("stations");
-                map.addLayer(stationsLayer);
 
                 var stationsControl = new OpenLayers.Control.SelectFeature(stationsLayer, {
                         onSelect: function(feature) {
@@ -288,6 +289,17 @@
                 });
                 map.addControl(stationsControl);
                 stationsControl.activate();
+
+                return stationsLayer;
+            }
+
+
+            function datainnMap() {
+                var base = svvMap();
+                var map = base.map;
+
+                map.addLayer(createCurrentPositionLayer(map));
+                map.addLayer(createStationsLayer(map));
 
                 function start(currentPosition) {
                     map.setCenter(new OpenLayers.LonLat(333992, 7196536), 3)
