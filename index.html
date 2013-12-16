@@ -251,7 +251,6 @@
                 var context = {
                     icon: function(feature) {
                         var zoom = map.getZoom();
-                        console.log(zoom);
                         return 'bower_components/openlayers/theme/default/img/overview_replacement.gif';
                     }
                 };
@@ -309,12 +308,37 @@
                 };
                 var style = new OpenLayers.Style(template, { context: context });
 
-                var strategy = new OpenLayers.Strategy.Cluster({ distance: 15, threshold: 2 });
+                var defaultThreshold = 2;
+                var noClusteringThreshold = 100000;
+                var noClusteringZoomLevel = 10;
+                var clusterStrategy = new OpenLayers.Strategy.Cluster({ distance: 15, threshold: defaultThreshold });
 
                 var stationsLayer = new OpenLayers.Layer.Vector("stations", {
                     styleMap: new OpenLayers.StyleMap({ 'default': style, 'select': style }),
-                    strategies: [strategy]
+                    strategies: [clusterStrategy]
                 });
+
+                function recluster(clusterStrategy) {
+                    clusterStrategy.clusters = null;
+                    clusterStrategy.cluster();
+                    clusterStrategy.layer.refresh({ force: true });
+                }
+
+                map.events.register("zoomend", this, function (e) {
+                    var clusterStrategy = stationsLayer.strategies[0];
+                    if (map.getZoom() >= noClusteringZoomLevel) {
+                        if (clusterStrategy.threshold === defaultThreshold) {
+                            clusterStrategy.threshold = noClusteringThreshold;
+                            recluster(clusterStrategy);
+                        }
+                    } else {
+                        if (clusterStrategy.threshold !== defaultThreshold) {
+                            clusterStrategy.threshold = defaultThreshold;
+                            recluster(clusterStrategy);
+                        }
+                    }
+                });
+
 
                 var stationsControl = new OpenLayers.Control.SelectFeature(stationsLayer, {
                     onSelect: function(feature) {
@@ -345,7 +369,6 @@
                 return stationsLayer;
             }
 
-
             function datainnMap() {
                 var map = svvMap();
 
@@ -359,14 +382,10 @@
                 function goToCurrentPosition() {
                     var layer = map.getLayersByName("currentPosition")[0];
                     var features = layer.getFeaturesByAttribute('id', 'currentPosition')
-
                     if (features.length > 0) {
-                        var lonlat = new OpenLayers.LonLat(lon, lat).transform(
-                            wgs1984,
-                            map.getProjectionObject()
-                        );
-
-                        features[0].move(lonlat);
+                        var position = features[0].geometry;
+                        var lonLat = new OpenLayers.LonLat(position.x, position.y);
+                        map.setCenter(lonLat, 13);
                     }
                 }
 
@@ -423,7 +442,8 @@
                 return {
                     render: render,
                     showStations: showStations,
-                    setCurrentPosition: setCurrentPosition
+                    setCurrentPosition: setCurrentPosition,
+                    goToCurrentPosition: goToCurrentPosition
                 }
             }
 
@@ -438,11 +458,9 @@
                 map.showStations([molde, oslo, oslo2]);
 
                 map.setCurrentPosition(10.4009966, 63.4112076);
+                // map.goToCurrentPosition();
 
                 // TODO:
-                // - zoom to current position if one is set
-                // - increase size of icons when zooming close
-                // - clustering (don't cluster when closer than zoomlevel X)
                 // - notified when map is moved and we are closer than a certain zoom level)
                 // - boundingBox()
             }
