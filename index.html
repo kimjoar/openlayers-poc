@@ -309,12 +309,12 @@
                         return "";
                     }
                 };
-                var currentPositionStyle = new OpenLayers.Style(template, { context: context });
+                var style = new OpenLayers.Style(template, { context: context });
 
                 var strategy = new OpenLayers.Strategy.Cluster({ distance: 15, threshold: 2 });
 
                 var stationsLayer = new OpenLayers.Layer.Vector("stations", {
-                    styleMap: new OpenLayers.StyleMap({ 'default': currentPositionStyle }),
+                    styleMap: new OpenLayers.StyleMap({ 'default': style, 'select': style }),
                     strategies: [strategy]
                 });
 
