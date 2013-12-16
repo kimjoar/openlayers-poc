@@ -247,7 +247,20 @@
                 var base = svvMap();
                 var map = base.map;
 
-                map.addLayer(new OpenLayers.Layer.Vector("currentPosition"));
+                var context = {
+                    getStationIconForZoom: function(feature) {
+                        return 'bower_components/openlayers/theme/default/img/overview_replacement.gif';
+                    }
+                };
+                var template = {
+                    externalGraphic: "${getStationIconForZoom}",
+                    graphicHeight: 20,
+                    graphicWidth: 20
+                };
+                var style = new OpenLayers.Style(template, { context: context });
+                var styleMap = new OpenLayers.StyleMap({ 'default': style });
+
+                map.addLayer(new OpenLayers.Layer.Vector("currentPosition", { styleMap: styleMap }));
 
                 var stationsLayer = new OpenLayers.Layer.Vector("stations");
                 map.addLayer(stationsLayer);
@@ -311,10 +324,7 @@
                             map.getProjectionObject()
                         );
 
-                        var feature = new OpenLayers.Feature.Vector(
-                            point,
-                            { id: 'currentPosition' },
-                            { externalGraphic: 'bower_components/openlayers/theme/default/img/overview_replacement.gif', graphicHeight: 20, graphicWidth: 20 });
+                        var feature = new OpenLayers.Feature.Vector(point, { id: 'currentPosition' });
                         layer.addFeatures(feature);
                     }
                 }
