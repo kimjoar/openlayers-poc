@@ -273,7 +273,9 @@
                 };
                 var context = {
                     stationIcon: function(feature) {
-                        return 'bower_components/openlayers/img/marker.png';
+                        var station = feature.data.station;
+                        var base = 'bower_components/openlayers/img/marker';
+                        return base + (station.install ? '' : '-blue') + ".png";
                     },
                     graphicYOffset: function(feature) {
                         return -template.graphicHeight;
@@ -371,14 +373,8 @@
 
                 function getFeatureForStation(station) {
                     return new OpenLayers.Feature.Vector(
-                        new OpenLayers.Geometry.Point(station.lon, station.lat),
-                        {
-                            station: {
-                                id: station.id,
-                                stationName: station.stationName,
-                                install: true
-                            }
-                        });
+                        new OpenLayers.Geometry.Point(station.lon, station.lat), { station: station }
+                    );
                 }
 
                 function render(el) {
@@ -406,8 +402,8 @@
 
                 map.render(document.querySelector('#map'));
 
-                var molde = { id: 1, stationName: "Molde", lat: 6981207, lon: 100655 };
-                var oslo = { id: 2, stationName: "Oslo", lat: 6649344, lon: 262804 };
+                var molde = { id: 1, stationName: "Molde", lat: 6981207, lon: 100655, install: true };
+                var oslo = { id: 2, stationName: "Oslo", lat: 6649344, lon: 262804, install: false };
                 map.showStations([molde, oslo]);
 
                 map.setCurrentPosition(10.4009966, 63.4112076);
