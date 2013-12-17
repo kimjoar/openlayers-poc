@@ -295,14 +295,28 @@
                         return context.hasOwnProperty('station') && context.station.install;
                     }
                 });
+                Filter.Uninstallable = OpenLayers.Class(OpenLayers.Filter, {
+                    initialize: function(options) {
+                        OpenLayers.Filter.prototype.initialize.apply(this, [options]);
+                    },
+
+                    evaluate: function(context) {
+                        return context.hasOwnProperty('station') && !context.station.install;
+                    }
+                });
 
                 var isClustered = new Filter.Clustered({ isClustered: true });
                 var notClustered = new Filter.Clustered({ isClustered: false });
                 var installableFilter = new Filter.Installable();
+                var uninstallableFilter = new Filter.Uninstallable();
 
                 var installable = new OpenLayers.Filter.Logical({
                     type: OpenLayers.Filter.Logical.AND,
                     filters: [notClustered, installableFilter]
+                });
+                var uninstallable = new OpenLayers.Filter.Logical({
+                    type: OpenLayers.Filter.Logical.AND,
+                    filters: [notClustered, uninstallableFilter]
                 });
 
                 var baseImgPath = 'bower_components/openlayers/img/';
@@ -313,12 +327,41 @@
                             symbolizer: {
                                 label: "${count}",
                                 fill: true,
-                                fillColor: "#ee9900",
-                                fillOpacity: 0.6,
+                                fillColor: "#444f55",
+                                fillOpacity: 1,
                                 fontColor: "#fff",
-                                pointRadius: 15,
+                                fontSize: 14,
+                                pointRadius: 12,
                                 stroke: false
                             }
+                        }),
+                        new OpenLayers.Rule({
+                            filter: uninstallable,
+                            symbolizer: {
+                                fill: true,
+                                fillColor: "#fff",
+                                fillOpacity: 1,
+                                stroke: true,
+                                strokeColor: "#444f55",
+                                strokeOpacity: 1,
+                                strokeWidth: 1,
+                                pointRadius: 4
+                            },
+                            minScaleDenominator: 500000
+                        }),
+                        new OpenLayers.Rule({
+                            filter: installable,
+                            symbolizer: {
+                                fill: true,
+                                fillColor: "#58b02c",
+                                fillOpacity: 1,
+                                stroke: true,
+                                strokeColor: "#444f55",
+                                strokeOpacity: 1,
+                                strokeWidth: 1,
+                                pointRadius: 4
+                            },
+                            minScaleDenominator: 500000
                         }),
                         new OpenLayers.Rule({
                             filter: installable,
@@ -328,7 +371,8 @@
                                 graphicWidth: 16,
                                 graphicOpacity: 1
                             },
-                            minScaleDenominator: 300000
+                            minScaleDenominator: 300000,
+                            maxScaleDenominator: 500000
                         }),
                         new OpenLayers.Rule({
                             filter: installable,
@@ -507,7 +551,8 @@
                 var molde = { id: 1, stationName: "Molde", lat: 6981207, lon: 100655, install: true };
                 var oslo = { id: 2, stationName: "Oslo", lat: 6649344, lon: 262804, install: false };
                 var oslo2 = { id: 3, stationName: "Løkka", lat: 6651304, lon: 262817, install: true };
-                map.showStations([molde, oslo, oslo2]);
+                var bergen = { id: 4, stationName: "Bergen", lat: 6734493, lon: -32356, install: false };
+                map.showStations([molde, bergen, oslo, oslo2]);
 
                 map.setCurrentPosition(10.4009966, 63.4112076);
                 // map.goToCurrentPosition();
