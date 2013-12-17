@@ -269,44 +269,87 @@
             });
 
             function createStationsLayer(map) {
-                var template = {
-                    // regular station design
-                    externalGraphic: "${stationIcon}",
-                    graphicHeight: "${graphicHeight}",
-                    graphicWidth: "${graphicWidth}",
-                    graphicOpacity: 1,
+                var Filter = {};
+                Filter.Clustered = OpenLayers.Class(OpenLayers.Filter, {
+                    isClustered: null,
 
-                    // cluster design
-                    label: "${label}",
-                    fill: true,
-                    fillColor: "#ee9900",
-                    fillOpacity: 0.6,
-                    fontColor: "#fff",
-                    pointRadius: 15,
-                    stroke: false
-                };
-                var context = {
-                    stationIcon: function(feature) {
-                        if (feature.cluster) return "";
+                    initialize: function(options) {
+                        OpenLayers.Filter.prototype.initialize.apply(this, [options]);
+                        this.isClustered = options.isClustered;
+                    },
 
-                        var station = feature.data.station;
-                        var base = 'bower_components/openlayers/img/marker';
-                        return base + (station.install ? '' : '-blue') + ".png";
-                    },
-                    graphicWidth: function(feature) {
-                        if (feature.cluster) return;
-                        return stationIconSize(map.getZoom()).width;
-                    },
-                    graphicHeight: function(feature) {
-                        if (feature.cluster) return;
-                        return stationIconSize(map.getZoom()).height;
-                    },
-                    label: function(feature) {
-                        if (feature.cluster) return feature.cluster.length;
-                        return "";
+                    evaluate: function(context) {
+                        if (context.hasOwnProperty('count')) {
+                            return context.count > 1 && this.isClustered;
+                        }
+
+                        return !this.isClustered;
                     }
-                };
-                var style = new OpenLayers.Style(template, { context: context });
+                });
+                Filter.Installable = OpenLayers.Class(OpenLayers.Filter, {
+                    initialize: function(options) {
+                        OpenLayers.Filter.prototype.initialize.apply(this, [options]);
+                    },
+
+                    evaluate: function(context) {
+                        return context.hasOwnProperty('station') && context.station.install;
+                    }
+                });
+
+                var isClustered = new Filter.Clustered({ isClustered: true });
+                var notClustered = new Filter.Clustered({ isClustered: false });
+                var installableFilter = new Filter.Installable();
+
+                var installable = new OpenLayers.Filter.Logical({
+                    type: OpenLayers.Filter.Logical.AND,
+                    filters: [notClustered, installableFilter]
+                });
+
+                var baseImgPath = 'bower_components/openlayers/img/';
+
+                var style = new OpenLayers.Style({}, { rules: [
+                        new OpenLayers.Rule({
+                            filter: isClustered,
+                            symbolizer: {
+                                label: "${count}",
+                                fill: true,
+                                fillColor: "#ee9900",
+                                fillOpacity: 0.6,
+                                fontColor: "#fff",
+                                pointRadius: 15,
+                                stroke: false
+                            }
+                        }),
+                        new OpenLayers.Rule({
+                            filter: installable,
+                            symbolizer: {
+                                externalGraphic: baseImgPath + 'marker-blue.png',
+                                graphicHeight: 21,
+                                graphicWidth: 16,
+                                graphicOpacity: 1
+                            },
+                            minScaleDenominator: 300000
+                        }),
+                        new OpenLayers.Rule({
+                            filter: installable,
+                            symbolizer: {
+                                externalGraphic: baseImgPath + 'marker-gold.png',
+                                graphicHeight: 21,
+                                graphicWidth: 16,
+                                graphicOpacity: 1
+                            },
+                            maxScaleDenominator: 300000
+                        }),
+                        new OpenLayers.Rule({
+                            elseFilter: true,
+                            symbolizer: {
+                                externalGraphic: baseImgPath + 'marker.png',
+                                graphicHeight: 21,
+                                graphicWidth: 16,
+                                graphicOpacity: 1
+                            }
+                        })
+                ]});
 
                 var defaultThreshold = 2;
                 var noClusteringThreshold = 100000;
@@ -314,7 +357,7 @@
                 var clusterStrategy = new OpenLayers.Strategy.Cluster({ distance: 15, threshold: defaultThreshold });
 
                 var stationsLayer = new OpenLayers.Layer.Vector("stations", {
-                    styleMap: new OpenLayers.StyleMap({ 'default': style, 'select': style }),
+                    styleMap: new OpenLayers.StyleMap(style),
                     strategies: [clusterStrategy]
                 });
 
