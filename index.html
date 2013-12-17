@@ -324,21 +324,30 @@
                     clusterStrategy.layer.refresh({ force: true });
                 }
 
-                map.events.register("zoomend", this, function (e) {
+                function containsClusters(clusterStrategy) {
+                    if (clusterStrategy.clusters && clusterStrategy.features) {
+                        return clusterStrategy.clusters.length !== clusterStrategy.features.length;
+                    }
+                    return false;
+                }
+
+                function ensureNoClusteringBelowZoomLevel() {
                     var clusterStrategy = stationsLayer.strategies[0];
+
                     if (map.getZoom() >= noClusteringZoomLevel) {
-                        if (clusterStrategy.threshold === defaultThreshold) {
+                        if (clusterStrategy.threshold === defaultThreshold && containsClusters(clusterStrategy)) {
                             clusterStrategy.threshold = noClusteringThreshold;
                             recluster(clusterStrategy);
                         }
                     } else {
-                        if (clusterStrategy.threshold !== defaultThreshold) {
+                        if (clusterStrategy.threshold !== defaultThreshold && !containsClusters(clusterStrategy)) {
                             clusterStrategy.threshold = defaultThreshold;
                             recluster(clusterStrategy);
                         }
                     }
-                });
+                }
 
+                map.events.register("zoomend", this, ensureNoClusteringBelowZoomLevel);
 
                 var stationsControl = new OpenLayers.Control.SelectFeature(stationsLayer, {
                     onSelect: function(feature) {
@@ -454,14 +463,14 @@
 
                 var molde = { id: 1, stationName: "Molde", lat: 6981207, lon: 100655, install: true };
                 var oslo = { id: 2, stationName: "Oslo", lat: 6649344, lon: 262804, install: false };
-                var oslo2 = { id: 3, stationName: "Løkka", lat: 6651304, lon: 262817, install: false };
+                var oslo2 = { id: 3, stationName: "Løkka", lat: 6651304, lon: 262817, install: true };
                 map.showStations([molde, oslo, oslo2]);
 
                 map.setCurrentPosition(10.4009966, 63.4112076);
                 // map.goToCurrentPosition();
 
                 // TODO:
-                // - notified when map is moved and we are closer than a certain zoom level)
+                // - notified when map is moved and we are closer than a certain zoom level
                 // - boundingBox()
             }
 
