@@ -35,6 +35,7 @@
 
         <script src="proj4js-compressed.js"></script>
         <script src="bower_components/underscore/underscore.js"></script>
+        <script src="bower_components/jquery/jquery.js"></script>
         <script src="bower_components/openlayers/lib/OpenLayers.js"></script>
         <script>
             Proj4js.defs["EPSG:25833"] = "+proj=utm +zone=33 +ellps=GRS80 +units=m +no_defs";
@@ -331,7 +332,7 @@
                                 fillOpacity: 1,
                                 fontColor: "#fff",
                                 fontSize: 14,
-                                pointRadius: 12,
+                                pointRadius: 15,
                                 stroke: false
                             }
                         }),
@@ -398,7 +399,7 @@
                 var defaultThreshold = 2;
                 var noClusteringThreshold = 100000;
                 var noClusteringZoomLevel = 10;
-                var clusterStrategy = new OpenLayers.Strategy.Cluster({ distance: 15, threshold: defaultThreshold });
+                var clusterStrategy = new OpenLayers.Strategy.Cluster({ distance: 35, threshold: defaultThreshold });
 
                 var stationsLayer = new OpenLayers.Layer.Vector("stations", {
                     styleMap: new OpenLayers.StyleMap(style),
@@ -419,6 +420,7 @@
                 }
 
                 function ensureNoClusteringBelowZoomLevel() {
+                    console.log(map.getZoom(), map.getScale());
                     var clusterStrategy = stationsLayer.strategies[0];
 
                     if (map.getZoom() >= noClusteringZoomLevel) {
@@ -518,7 +520,7 @@
 
                 function getFeatureForStation(station) {
                     return new OpenLayers.Feature.Vector(
-                        new OpenLayers.Geometry.Point(station.lon, station.lat), { station: station }
+                        new OpenLayers.Geometry.Point(station.coordinateEast, station.coordinateNorth), { station: station }
                     );
                 }
 
@@ -548,14 +550,15 @@
 
                 map.render(document.querySelector('#map'));
 
-                var molde = { id: 1, stationName: "Molde", lat: 6981207, lon: 100655, install: true };
-                var oslo = { id: 2, stationName: "Oslo", lat: 6649344, lon: 262804, install: false };
-                var oslo2 = { id: 3, stationName: "Løkka", lat: 6651304, lon: 262817, install: true };
-                var bergen = { id: 4, stationName: "Bergen", lat: 6734493, lon: -32356, install: false };
-                map.showStations([molde, bergen, oslo, oslo2]);
-
                 map.setCurrentPosition(10.4009966, 63.4112076);
                 // map.goToCurrentPosition();
+
+                $.getJSON("/stations").done(function(stations) {
+                        console.log(stations);
+                    map.showStations(stations);
+                    }, function() {
+                    console.log('failed');
+                    });
 
                 // TODO:
                 // - notified when map is moved and we are closer than a certain zoom level
