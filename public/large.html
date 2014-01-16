@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>SVV-kart</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="bower_components/normalize-css/normalize.css">
+        <style type="text/css">
+            .olControlScaleLine {
+               display: block;
+               position: absolute;
+               left: 5px;
+               bottom: 5px;
+               font-size: xx-small;
+               border-bottom: 1px solid #000;
+            }
+
+            .olPopup {
+                margin-left: -75px;
+                margin-top: 10px;
+            }
+            .olPopup h3 {
+                text-align: center;
+                margin: 5px 0;
+            }
+            .olPopupContent {
+            }
+            .olControlZoom {
+                left: 10px;
+                top: 10px;
+            }
+            .olButton {
+                padding: 6px 10px;
+                display: block;
+                color: #444f55;
+                background-color: #ececec;
+                margin-bottom: 2px;
+                text-decoration: none;
+                font-size: 18px;
+                -webkit-transition: background 0.3s linear;
+                   -moz-transition: background 0.3s linear;
+                    -ms-transition: background 0.3s linear;
+                     -o-transition: background 0.3s linear;
+                        transition: background 0.3s linear;
+            }
+            .olButton:hover {
+                background-color: #dadada;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>SVV-kart</h1>
+
+        <div style="width:100%; height:800px;" id="map"></div>
+
+        <script src="proj4js-compressed.js"></script>
+        <script src="bower_components/underscore/underscore.js"></script>
+        <script src="bower_components/jquery/jquery.js"></script>
+        <script src="bower_components/openlayers/lib/OpenLayers.js"></script>
+        <script src="map.js"></script>
+    </body>
+</html>
