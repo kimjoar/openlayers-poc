@@ -453,7 +453,9 @@ function datainnMap() {
         }
     }
 
-    function setCurrentPosition(lon, lat) {
+    function setCurrentPosition(position) {
+        var lat = position.lat;
+        var lon = position.lon;
         var layer = map.getLayersByName("currentPosition")[0];
         var features = layer.getFeaturesByAttribute('id', 'currentPosition')
 
@@ -516,15 +518,25 @@ window.onload = function() {
 
     map.render(document.querySelector('#map'));
 
-    map.setCurrentPosition(10.4009966, 63.4112076);
+    var watchId = navigator.geolocation.watchPosition(function(pos) {
+        console.log('current pos', pos);
+        map.setCurrentPosition({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            accuracy: pos.coords.accuracy
+        });
+    });
+
     // map.goToCurrentPosition();
 
+    setTimeout(function() {
+        console.log('stop');
+        navigator.geolocation.clearWatch(watchId);
+    }, 30000);
+
     $.getJSON("/stations").done(function(stations) {
-            console.log(stations);
         map.showStations(stations);
-        }, function() {
-        console.log('failed');
-        });
+    });
 
     // TODO:
     // - notified when map is moved and we are closer than a certain zoom level
