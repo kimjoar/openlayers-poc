@@ -436,8 +436,8 @@ function createStationsLayer(map) {
 function datainnMap() {
     var map = svvMap();
 
-    map.addLayer(createCurrentPositionLayer(map));
     map.addLayer(createStationsLayer(map));
+    map.addLayer(createCurrentPositionLayer(map));
 
     function start(currentPosition) {
         map.setCenter(new OpenLayers.LonLat(333992, 7196536), 3)
