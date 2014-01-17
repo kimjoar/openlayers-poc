@@ -333,9 +333,9 @@ function createStationsLayer(map) {
                 strokeColor: "#444f55",
                 strokeOpacity: 1,
                 strokeWidth: 1,
-                pointRadius: 4
+                pointRadius: 2
             },
-            minScaleDenominator: 500000
+            minScaleDenominator: 2000000
         }),
         new OpenLayers.Rule({
             filter: installable,
@@ -347,20 +347,99 @@ function createStationsLayer(map) {
                 strokeColor: "#444f55",
                 strokeOpacity: 1,
                 strokeWidth: 1,
-                pointRadius: 4
+                pointRadius: 2
             },
-            minScaleDenominator: 500000
+            minScaleDenominator: 2000000
+        }),
+        new OpenLayers.Rule({
+            filter: uninstallable,
+            symbolizer: {
+                fill: true,
+                fillColor: "#fff",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                pointRadius: 3
+            },
+            minScaleDenominator: 400000,
+            maxScaleDenominator: 2000000
         }),
         new OpenLayers.Rule({
             filter: installable,
             symbolizer: {
-                externalGraphic: baseImgPath + 'marker-blue.png',
-                graphicHeight: 21,
-                graphicWidth: 16,
-                graphicOpacity: 1
+                fill: true,
+                fillColor: "#58b02c",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                pointRadius: 3
             },
-            minScaleDenominator: 300000,
-            maxScaleDenominator: 500000
+            minScaleDenominator: 400000,
+            maxScaleDenominator: 2000000
+        }),
+        new OpenLayers.Rule({
+            filter: uninstallable,
+            symbolizer: {
+                fill: true,
+                fillColor: "#fff",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 1,
+                pointRadius: 4
+            },
+            minScaleDenominator: 100000,
+            maxScaleDenominator: 400000
+        }),
+        new OpenLayers.Rule({
+            filter: installable,
+            symbolizer: {
+                fill: true,
+                fillColor: "#58b02c",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 2,
+                pointRadius: 5
+            },
+            minScaleDenominator: 100000,
+            maxScaleDenominator: 400000
+        }),
+        new OpenLayers.Rule({
+            filter: uninstallable,
+            symbolizer: {
+                fill: true,
+                fillColor: "#58b02c",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 7,
+                pointRadius: 8
+            },
+            minScaleDenominator: 5000,
+            maxScaleDenominator: 100000
+        }),
+        new OpenLayers.Rule({
+            filter: installable,
+            symbolizer: {
+                fill: true,
+                fillColor: "#58b02c",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 7,
+                pointRadius: 8
+            },
+            minScaleDenominator: 5000,
+            maxScaleDenominator: 100000
         }),
         new OpenLayers.Rule({
             filter: installable,
@@ -370,7 +449,7 @@ function createStationsLayer(map) {
                 graphicWidth: 16,
                 graphicOpacity: 1
             },
-            maxScaleDenominator: 300000
+            maxScaleDenominator: 5000
         }),
         new OpenLayers.Rule({
             elseFilter: true,
@@ -471,7 +550,7 @@ function datainnMap() {
         if (features.length > 0) {
             var position = features[0].geometry;
             var lonLat = new OpenLayers.LonLat(position.x, position.y);
-            map.setCenter(lonLat, 13);
+            map.setCenter(lonLat, 10);
         }
     }
 
@@ -548,9 +627,8 @@ window.onload = function() {
             lon: pos.coords.longitude,
             accuracy: pos.coords.accuracy
         });
+        map.goToCurrentPosition();
     });
-
-    // map.goToCurrentPosition();
 
     setTimeout(function() {
         console.log('stop');
