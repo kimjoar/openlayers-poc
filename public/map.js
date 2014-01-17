@@ -434,29 +434,36 @@ function createStationsLayer(map) {
 
     // map.events.register("zoomend", this, ensureNoClusteringBelowZoomLevel);
 
-    var stationsControl = new OpenLayers.Control.SelectFeature(stationsLayer, {
-        onSelect: function(feature) {
+    var stationPopup = {
+        show: function(feature) {
             if (feature.cluster) return;
-            var station = feature.data.station;
 
-            var popup = new OpenLayers.Popup(
+            var station = feature.data.station;
+            var popup = feature.popup = new OpenLayers.Popup(
                 'svv-popup-' + station.id,
                 feature.geometry.getBounds().getCenterLonLat(),
                 new OpenLayers.Size(150, 50),
                 "<h3>" + station.stationName + "</h3>",
                 false,
-                null);
+                null)
 
-            feature.popup = popup;
-            map.addPopup(popup);
+            feature.layer.map.addPopup(popup);
         },
-        onUnselect: function(feature) {
+
+        remove: function(feature) {
             if (feature.cluster) return;
-            map.removePopup(feature.popup);
+
+            feature.layer.map.removePopup(feature.popup);
             feature.popup.destroy();
             feature.popup = null;
         }
+    };
+
+    var stationsControl = new OpenLayers.Control.SelectFeature(stationsLayer, {
+        onSelect: stationPopup.show,
+        onUnselect: stationPopup.remove
     });
+
     map.addControl(stationsControl);
     stationsControl.activate();
 
