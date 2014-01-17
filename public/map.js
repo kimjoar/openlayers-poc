@@ -277,8 +277,6 @@ function createStationsLayer(map) {
         filters: [notClustered, uninstallableFilter]
     });
 
-    var baseImgPath = 'bower_components/openlayers/img/';
-
     function basedOn(baseSettings) {
         var builder = function(specifics) {
             return _.extend({}, baseSettings, specifics || {});
@@ -569,13 +567,6 @@ function datainnMap() {
     function render(el) {
         map.render(el);
     }
-
-    // map.addControl(new OpenLayers.Control.MousePosition());
-    // map.events.on({
-    //     "moveend":function(){
-    //         console.log(map.getCenter().toString())
-    //     }
-    // });
 
     start();
 
