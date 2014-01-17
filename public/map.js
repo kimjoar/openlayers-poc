@@ -279,6 +279,33 @@ function createStationsLayer(map) {
 
     var baseImgPath = 'bower_components/openlayers/img/';
 
+    function basedOn(baseSettings) {
+        var builder = function(specifics) {
+            return _.extend({}, baseSettings, specifics || {});
+        }
+
+        builder.with = function(specifics) {
+            return basedOn(_.extend({}, baseSettings, specifics || {}));
+        };
+
+        return builder;
+    }
+
+    var settings = basedOn({
+        pointRadius: 2,
+
+        fill: true,
+        fillColor: "#58b02c",
+        fillOpacity: 1,
+
+        stroke: true,
+        strokeColor: "#444f55",
+        strokeOpacity: 1,
+        strokeWidth: 1
+    });
+
+    var alarmSettings = settings.with({ fillColor: "red" });
+
     var rules = [
         new OpenLayers.Rule({
             filter: isClustered,
@@ -293,160 +320,71 @@ function createStationsLayer(map) {
                 stroke: false
             }
         }),
-        new OpenLayers.Rule({
-            filter: uninstallable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#fff",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 1,
-                pointRadius: 2
-            },
-            minScaleDenominator: 2000000
-        }),
+
         new OpenLayers.Rule({
             filter: installable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#58b02c",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 1,
-                pointRadius: 2
-            },
+            symbolizer: settings(),
             minScaleDenominator: 2000000
         }),
+
         new OpenLayers.Rule({
             filter: uninstallable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#fff",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 1,
-                pointRadius: 3
-            },
+            symbolizer: alarmSettings(),
+            minScaleDenominator: 2000000
+        }),
+
+        new OpenLayers.Rule({
+            filter: uninstallable,
+            symbolizer: alarmSettings({ pointRadius: 4 }),
             minScaleDenominator: 400000,
             maxScaleDenominator: 2000000
         }),
+
         new OpenLayers.Rule({
             filter: installable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#58b02c",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 1,
-                pointRadius: 3
-            },
+            symbolizer: settings({ pointRadius: 4 }),
             minScaleDenominator: 400000,
             maxScaleDenominator: 2000000
         }),
+
         new OpenLayers.Rule({
             filter: uninstallable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#fff",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 1,
-                pointRadius: 4
-            },
+            symbolizer: alarmSettings({ pointRadius: 5, strokeWidth: 2 }),
             minScaleDenominator: 100000,
             maxScaleDenominator: 400000
         }),
+
         new OpenLayers.Rule({
             filter: installable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#58b02c",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 2,
-                pointRadius: 5
-            },
+            symbolizer: settings({ pointRadius: 5, strokeWidth: 2 }),
             minScaleDenominator: 100000,
             maxScaleDenominator: 400000
         }),
+
         new OpenLayers.Rule({
             filter: uninstallable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#58b02c",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 7,
-                pointRadius: 8
-            },
+            symbolizer: alarmSettings({ pointRadius: 8, strokeWidth: 7 }),
             minScaleDenominator: 5000,
             maxScaleDenominator: 100000
         }),
+
         new OpenLayers.Rule({
             filter: installable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#58b02c",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 7,
-                pointRadius: 8
-            },
+            symbolizer: settings({ pointRadius: 8, strokeWidth: 7 }),
             minScaleDenominator: 5000,
             maxScaleDenominator: 100000
         }),
+
         new OpenLayers.Rule({
             filter: uninstallable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#58b02c",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 13,
-                pointRadius: 15
-            },
+            symbolizer: alarmSettings({ pointRadius: 15, strokeWidth: 13 }),
             maxScaleDenominator: 5000
         }),
+
         new OpenLayers.Rule({
             filter: installable,
-            symbolizer: {
-                fill: true,
-                fillColor: "#58b02c",
-                fillOpacity: 1,
-                stroke: true,
-                strokeColor: "#444f55",
-                strokeOpacity: 1,
-                strokeWidth: 13,
-                pointRadius: 15
-            },
+            symbolizer: settings({ pointRadius: 15, strokeWidth: 13 }),
             maxScaleDenominator: 5000
-        }),
-        new OpenLayers.Rule({
-            elseFilter: true,
-            symbolizer: {
-                externalGraphic: baseImgPath + 'marker.png',
-                graphicHeight: 21,
-                graphicWidth: 16,
-                graphicOpacity: 1
-            }
         })
     ]
     var style = new OpenLayers.Style({}, { rules: rules });
