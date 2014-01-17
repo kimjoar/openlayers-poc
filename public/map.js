@@ -599,14 +599,33 @@ function datainnMap() {
 
         layer.removeAllFeatures();
 
-        var features = stations.map(getFeatureForStation);
+        var features = stations.map(createFeatureForStation);
         layer.addFeatures(features);
     }
 
-    function getFeatureForStation(station) {
-        return new OpenLayers.Feature.Vector(
-            new OpenLayers.Geometry.Point(station.coordinateEast, station.coordinateNorth), { station: station }
-        );
+    function updateStation(station) {
+        var layer = map.getLayersByName("stations")[0];
+        var features = layer.getFeaturesByAttribute('id', station.id);
+
+        if (features.length === 0) {
+            // add to map
+            layer.addFeatures([createFeatureForStation(station)]);
+        } else {
+            // update in map
+            var feature = features[0];
+            feature.station = station;
+            layer.drawFeature(feature);
+        }
+
+    }
+
+    function createFeatureForStation(station) {
+        var point = new OpenLayers.Geometry.Point(station.coordinateEast, station.coordinateNorth);
+
+        return new OpenLayers.Feature.Vector(point, {
+            id: station.id,
+            station: station
+        });
     }
 
     function render(el) {
@@ -625,6 +644,7 @@ function datainnMap() {
     return {
         render: render,
         showStations: showStations,
+        updateStation: updateStation,
         setCurrentPosition: setCurrentPosition,
         goToCurrentPosition: goToCurrentPosition
     }
@@ -652,6 +672,13 @@ window.onload = function() {
 
     $.getJSON("/stations").done(function(stations) {
         map.showStations(stations);
+
+        // testing station update:
+        setTimeout(function() {
+            var s = _.findWhere(stations, { stationName: 'GRINI' });
+            s.install = true;
+            map.updateStation(s);
+        }, 3000);
     });
 
     // TODO:
