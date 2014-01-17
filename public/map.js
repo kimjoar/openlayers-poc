@@ -304,19 +304,24 @@ function createStationsLayer(map) {
 
     var alarmSettings = settings.with({ fillColor: "red" });
 
+    var clusterSettings = basedOn({
+        label: "${count}",
+        fontColor: "#fff",
+        fontSize: 14,
+
+        pointRadius: 15,
+
+        fill: true,
+        fillColor: "#444f55",
+        fillOpacity: 1,
+
+        stroke: false
+    });
+
     var rules = [
         new OpenLayers.Rule({
             filter: isClustered,
-            symbolizer: {
-                label: "${count}",
-                fill: true,
-                fillColor: "#444f55",
-                fillOpacity: 1,
-                fontColor: "#fff",
-                fontSize: 14,
-                pointRadius: 15,
-                stroke: false
-            }
+            symbolizer: clusterSettings()
         }),
 
         new OpenLayers.Rule({
