@@ -442,12 +442,30 @@ function createStationsLayer(map) {
             maxScaleDenominator: 100000
         }),
         new OpenLayers.Rule({
+            filter: uninstallable,
+            symbolizer: {
+                fill: true,
+                fillColor: "#58b02c",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 13,
+                pointRadius: 15
+            },
+            maxScaleDenominator: 5000
+        }),
+        new OpenLayers.Rule({
             filter: installable,
             symbolizer: {
-                externalGraphic: baseImgPath + 'marker-gold.png',
-                graphicHeight: 21,
-                graphicWidth: 16,
-                graphicOpacity: 1
+                fill: true,
+                fillColor: "#58b02c",
+                fillOpacity: 1,
+                stroke: true,
+                strokeColor: "#444f55",
+                strokeOpacity: 1,
+                strokeWidth: 13,
+                pointRadius: 15
             },
             maxScaleDenominator: 5000
         }),
