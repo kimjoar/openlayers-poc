@@ -208,14 +208,36 @@ var svvMap = function(options) {
 
 function createCurrentPositionLayer(map) {
     var template = {
-        externalGraphic: "${icon}",
-        graphicHeight: 20,
-        graphicWidth: 20
+        pointRadius: "${size}",
+
+        fill: true,
+        fillColor: "#0185b6",
+        fillOpacity: "${fillOpacity}",
+
+        stroke: true,
+        strokeColor: "${strokeColor}",
+        strokeOpacity: 1,
+        strokeWidth: 1
     };
     var context = {
-        icon: function(feature) {
-            var zoom = map.getZoom();
-            return 'bower_components/openlayers/theme/default/img/overview_replacement.gif';
+        size: function(feature) {
+            var layer = feature.layer;
+            var resolution = layer.map.getResolution();
+            var accuracy = layer.position.accuracy;
+
+            return Math.max(5, Math.ceil(accuracy / resolution));
+        },
+        fillOpacity: function(feature) {
+            var map = feature.layer.map;
+
+            if (map.getZoom() > 10) return 0.5;
+            else return 1;
+        },
+        strokeColor: function(feature) {
+            var map = feature.layer.map;
+
+            if (map.getZoom() > 10) return "#008ec2";
+            else return "#444f55";
         }
     };
     var currentPositionStyle = new OpenLayers.Style(template, { context: context });
@@ -457,6 +479,7 @@ function datainnMap() {
         var lat = position.lat;
         var lon = position.lon;
         var layer = map.getLayersByName("currentPosition")[0];
+        layer.position = position;
         var features = layer.getFeaturesByAttribute('id', 'currentPosition')
 
         if (features.length > 0) {
