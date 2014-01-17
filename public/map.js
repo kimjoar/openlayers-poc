@@ -174,39 +174,6 @@ var layerInfo = {
 var wgs1984 = new OpenLayers.Projection("EPSG:4326");
 var currentPositionLayerName = "currentPosition";
 
-var svvMap = function(options) {
-    var layerMaxExtent = new OpenLayers.Bounds(-300000, 6200000, 1300000, 8200000);
-
-    var controls = [
-        new OpenLayers.Control.Navigation(),
-        // only show scale line in meters
-        new OpenLayers.Control.ScaleLine({ bottomOutUnits: '' }),
-        new OpenLayers.Control.Zoom()
-     ];
-
-    var arcgis = new OpenLayers.Layer.ArcGISCache("GeocacheTrafikk", url, {
-        layerInfo: layerInfo
-    });
-
-    var map = new OpenLayers.Map({
-        // we restrict the map to only include Norway
-        restrictedExtent: layerMaxExtent,
-        // reset the theme, as we want to specify everything ourselves
-        theme: null,
-        controls: controls,
-        units: arcgis.units,
-        resolutions: arcgis.resolutions,
-        tileSize: arcgis.tileSize,
-        layers: [arcgis],
-        isValidZoomLevel: function(zoomLevel) {
-            // A zoomLevel of 3 is the lowest zoom where roads are marked on the map
-            return zoomLevel >= 3 && zoomLevel < this.getNumZoomLevels();
-        }
-    });
-
-    return map;
-};
-
 function createCurrentPositionLayer(map) {
     var template = {
         pointRadius: "${size}",
@@ -556,7 +523,34 @@ function createStationsLayer(map) {
 }
 
 function datainnMap() {
-    var map = svvMap();
+    var layerMaxExtent = new OpenLayers.Bounds(-300000, 6200000, 1300000, 8200000);
+
+    var controls = [
+        new OpenLayers.Control.Navigation(),
+        // only show scale line in meters
+        new OpenLayers.Control.ScaleLine({ bottomOutUnits: '' }),
+        new OpenLayers.Control.Zoom()
+     ];
+
+    var arcgis = new OpenLayers.Layer.ArcGISCache("GeocacheTrafikk", url, {
+        layerInfo: layerInfo
+    });
+
+    var map = new OpenLayers.Map({
+        // we restrict the map to only include Norway
+        restrictedExtent: layerMaxExtent,
+        // reset the theme, as we want to specify everything ourselves
+        theme: null,
+        controls: controls,
+        units: arcgis.units,
+        resolutions: arcgis.resolutions,
+        tileSize: arcgis.tileSize,
+        layers: [arcgis],
+        isValidZoomLevel: function(zoomLevel) {
+            // A zoomLevel of 3 is the lowest zoom where roads are marked on the map
+            return zoomLevel >= 3 && zoomLevel < this.getNumZoomLevels();
+        }
+    });
 
     map.addLayer(createStationsLayer(map));
     map.addLayer(createCurrentPositionLayer(map));
