@@ -281,7 +281,8 @@ function createStationsLayer(map) {
         },
 
         evaluate: function(context) {
-            return context.hasOwnProperty('station') && context.station.install;
+            if (!context.hasOwnProperty('station')) return false;
+            return !!context.station.install;
         }
     });
     Filter.Uninstallable = OpenLayers.Class(OpenLayers.Filter, {
@@ -290,7 +291,8 @@ function createStationsLayer(map) {
         },
 
         evaluate: function(context) {
-            return context.hasOwnProperty('station') && !context.station.install;
+            if (!context.hasOwnProperty('station')) return false;
+            return !context.station.install;
         }
     });
 
