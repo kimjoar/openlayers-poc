@@ -172,6 +172,7 @@ var layerInfo = {
 };
 
 var wgs1984 = new OpenLayers.Projection("EPSG:4326");
+var currentPositionLayerName = "currentPosition";
 
 var svvMap = function(options) {
     var layerMaxExtent = new OpenLayers.Bounds(-300000, 6200000, 1300000, 8200000);
@@ -242,7 +243,7 @@ function createCurrentPositionLayer(map) {
     };
     var currentPositionStyle = new OpenLayers.Style(template, { context: context });
 
-    return new OpenLayers.Layer.Vector("currentPosition", {
+    return new OpenLayers.Layer.Vector(currentPositionLayerName, {
         styleMap: new OpenLayers.StyleMap({
             default: currentPositionStyle
         })
@@ -563,21 +564,22 @@ function datainnMap() {
     }
 
     function goToCurrentPosition() {
-        var layer = map.getLayersByName("currentPosition")[0];
-        var features = layer.getFeaturesByAttribute('id', 'currentPosition')
+        var layer = map.getLayersByName(currentPositionLayerName)[0];
+        var features = layer.features;
+
         if (features.length > 0) {
             var position = features[0].geometry;
             var lonLat = new OpenLayers.LonLat(position.x, position.y);
-            map.setCenter(lonLat, 10);
+            map.setCenter(lonLat, 7);
         }
     }
 
     function setCurrentPosition(position) {
         var lat = position.lat;
         var lon = position.lon;
-        var layer = map.getLayersByName("currentPosition")[0];
+        var layer = map.getLayersByName(currentPositionLayerName)[0];
         layer.position = position;
-        var features = layer.getFeaturesByAttribute('id', 'currentPosition')
+        var features = layer.features;
 
         if (features.length > 0) {
             var lonlat = new OpenLayers.LonLat(lon, lat).transform(
@@ -592,8 +594,7 @@ function datainnMap() {
                 map.getProjectionObject()
             );
 
-            var feature = new OpenLayers.Feature.Vector(point, { id: 'currentPosition' });
-            layer.addFeatures(feature);
+            layer.addFeatures(new OpenLayers.Feature.Vector(point));
         }
     }
 
