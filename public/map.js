@@ -416,8 +416,11 @@ function createStationsLayer(map) {
     }
 
     function ensureNoClusteringBelowZoomLevel() {
-        console.log(map.getZoom(), map.getScale());
-        var clusterStrategy = stationsLayer.strategies[0];
+        var clusterStrategy = _.find(stationsLayer.strategies, function(strategy) {
+            return strategy instanceof OpenLayers.Strategy.Cluster;
+        });
+
+        if (!clusterStrategy) return;
 
         if (map.getZoom() >= noClusteringZoomLevel) {
             if (clusterStrategy.threshold === defaultThreshold && containsClusters(clusterStrategy)) {
@@ -432,7 +435,7 @@ function createStationsLayer(map) {
         }
     }
 
-    // map.events.register("zoomend", this, ensureNoClusteringBelowZoomLevel);
+    map.events.register("zoomend", this, ensureNoClusteringBelowZoomLevel);
 
     var stationPopup = {
         show: function(feature) {
